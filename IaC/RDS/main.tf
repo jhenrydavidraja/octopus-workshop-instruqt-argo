@@ -1,5 +1,6 @@
 ###############################################
 # FULLY AUTOMATED, RERUNNABLE RDS SQL Server
+# Password output is NOT sensitive (Option 3)
 ###############################################
 
 terraform {
@@ -16,7 +17,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "eu-west-2"
+  region = "eu-west-2" # London
 }
 
 ###############################################
@@ -80,7 +81,7 @@ resource "aws_subnet" "subnet_b" {
 }
 
 ###############################################
-# INTERNET (IGW + ROUTES)
+# INTERNET GATEWAY + ROUTING
 ###############################################
 
 resource "aws_internet_gateway" "gw" {
@@ -100,7 +101,7 @@ resource "aws_route_table" "rt" {
   }
 
   tags = {
-    Name = "route-${random_pet.suffix.id}"
+    Name = "rt-${random_pet.suffix.id}"
   }
 }
 
@@ -127,7 +128,7 @@ resource "aws_security_group" "sql_sg" {
     from_port   = 1433
     to_port     = 1433
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Fully open for demo account
+    cidr_blocks = ["0.0.0.0/0"] # fully open for disposable environment
   }
 
   egress {
@@ -143,7 +144,7 @@ resource "aws_security_group" "sql_sg" {
 }
 
 ###############################################
-# RDS SUBNET GROUP (RANDOMIZED NAME)
+# RDS SUBNET GROUP - RANDOM NAME
 ###############################################
 
 resource "aws_db_subnet_group" "sql_subnets" {
@@ -183,7 +184,7 @@ resource "aws_db_instance" "sqlserver" {
 }
 
 ###############################################
-# OUTPUTS
+# OUTPUTS (PASSWORD IS NOT SENSITIVE)
 ###############################################
 
 output "rds_host" {
@@ -200,7 +201,7 @@ output "username" {
 
 output "password" {
   value     = random_password.password.result
-  sensitive = true
+  sensitive = false   # <-- YOU CAN SEE THE PASSWORD IN OCTOPUS NOW
 }
 
 output "instance_identifier" {
